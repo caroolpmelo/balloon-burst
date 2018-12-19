@@ -36,7 +36,8 @@ for (let columns = 0; columns < brickColumnCount; columns++) {
     bricks[columns][rows] = {
       // object that contains x and y position
       x: 0,
-      Y: 0
+      Y: 0,
+      status: 1
     };
   }
 }
@@ -60,6 +61,26 @@ function keyUpHandler(e) {
   }
 }
 
+function collisionDetection() {
+  for (let columns = 0; columns < brickColumnCount; columns++) {
+    for (let rows = 0; rows < brickRowCount; rows++) {
+      var brickObj = bricks[columns][rows];
+
+      if (brickObj.status == 1) {
+        if (
+          x > brickObj.x &&
+          x < brickObj.x + brickWidth &&
+          y > brickObj.y &&
+          y < brickObj.y + brickHeight
+        ) {
+          dy *= -1; // collision on brick
+          brickObj.status = 0; // 'delete' brick
+        }
+      }
+    }
+  }
+}
+
 function drawBall() {
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
@@ -79,27 +100,32 @@ function drawPaddle() {
 function drawBricks() {
   for (let columns = 0; columns < brickColumnCount; columns++) {
     for (let rows = 0; rows < brickRowCount; rows++) {
-      var brickX = columns * (brickWidth + brickPadding) + brickOffsetLeft;
-      var brickY = rows * (brickHeight + brickPadding) + brickOffsetTop;
+      // if status '0', brick has been deleted
+      if (bricks[columns][rows].status == 1) {
+        // if 1, draw it
+        var brickX = columns * (brickWidth + brickPadding) + brickOffsetLeft;
+        var brickY = rows * (brickHeight + brickPadding) + brickOffsetTop;
 
-      bricks[columns][rows].x = brickX;
-      bricks[columns][rows].y = brickY;
+        bricks[columns][rows].x = brickX;
+        bricks[columns][rows].y = brickY;
 
-      ctx.beginPath();
-      ctx.rect(brickX, brickY, brickWidth, brickHeight);
-      ctx.fillStyle = "#0095DD";
-      ctx.fill();
-      ctx.closePath();
+        ctx.beginPath();
+        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+      }
     }
   }
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
   drawBricks();
   drawBall();
   drawPaddle();
+  collisionDetection();
 
   // collision detection
   if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
