@@ -1,16 +1,45 @@
+// canvas
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d"); // actual tool to paint on canvas
-const ballRadius = 10;
-const paddleHeight = 10;
-const paddleWidth = 75;
 
+// ball + movement
+const ballRadius = 10;
 let x = canvas.width / 2;
 let y = canvas.height - 30;
 let dx = 2;
 let dy = -2;
+
+// paddle + movement
+const paddleHeight = 10;
+const paddleWidth = 75;
 let paddleX = (canvas.width - paddleWidth) / 2;
+
+// keys
 let rightPressed = false;
 let leftPressed = false;
+
+// bricks
+const brickRowCount = 3;
+const brickColumnCount = 5;
+const brickWidth = 75;
+const brickHeight = 20;
+const brickPadding = 10;
+const brickOffsetTop = 30;
+const brickOffsetLeft = 30;
+
+// bricks array
+let bricks = [];
+for (let columns = 0; columns < brickColumnCount; columns++) {
+  bricks[columns] = []; // two-dimensional array
+  // brick columns contain brick rows
+  for (let rows = 0; rows < brickRowCount; rows++) {
+    bricks[columns][rows] = {
+      // object that contains x and y position
+      x: 0,
+      Y: 0
+    };
+  }
+}
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -47,8 +76,28 @@ function drawPaddle() {
   ctx.closePath();
 }
 
+function drawBricks() {
+  for (let columns = 0; columns < brickColumnCount; columns++) {
+    for (let rows = 0; rows < brickRowCount; rows++) {
+      var brickX = columns * (brickWidth + brickPadding) + brickOffsetLeft;
+      var brickY = rows * (brickHeight + brickPadding) + brickOffsetTop;
+
+      bricks[columns][rows].x = brickX;
+      bricks[columns][rows].y = brickY;
+
+      ctx.beginPath();
+      ctx.rect(brickX, brickY, brickWidth, brickHeight);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  drawBricks();
   drawBall();
   drawPaddle();
 
