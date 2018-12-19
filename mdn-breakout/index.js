@@ -1,18 +1,16 @@
 const canvas = document.getElementById("myCanvas");
-let ctx = canvas.getContext("2d"); // actual tool to paint on canvas
+const ctx = canvas.getContext("2d"); // actual tool to paint on canvas
+const ballRadius = 10;
+const paddleHeight = 10;
+const paddleWidth = 75;
 
-const ballRadius = 10,
-  paddleHeight = 10,
-  paddleWidth = 75;
-
-let x = canvas.width / 2,
-  y = canvas.height - 30,
-  dx = 2,
-  dy = -2,
-  paddleX = (canvas.width - paddleWidth) / 2;
-
-let rightPressed = false,
-  leftPressed = false;
+let x = canvas.width / 2;
+let y = canvas.height - 30;
+let dx = 2;
+let dy = -2;
+let paddleX = (canvas.width - paddleWidth) / 2;
+let rightPressed = false;
+let leftPressed = false;
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -59,8 +57,16 @@ function draw() {
     dx *= -1;
   }
 
-  if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
+  // allows just 3 walls
+  if (y + dy < ballRadius) {
     dy *= -1;
+  } else if (y + dy > canvas.height - ballRadius) {
+    if (x > paddleX && x < paddleX + paddleWidth) {
+      dy *= -1;
+    } else {
+      alert("GAME OVER");
+      document.location.reload();
+    }
   }
 
   if (rightPressed && paddleX < canvas.width - paddleWidth) {
@@ -74,21 +80,3 @@ function draw() {
 }
 
 setInterval(draw, 10); // draw() will be executed every 10 miliseconds
-
-// ctx.beginPath();
-// ctx.rect(20, 40, 50, 50); // (x, y, width, height)
-// ctx.fillStyle = "#FF0000"; // 'color | gradient | pattern'
-// ctx.fill();
-// ctx.closePath();
-
-// ctx.beginPath();
-// ctx.arc(240, 160, 20, 0, Math.PI * 2, false);
-// ctx.fillStyle = "green";
-// ctx.fill();
-// ctx.closePath();
-
-// ctx.beginPath();
-// ctx.rect(160, 10, 100, 40);
-// ctx.strokeStyle = "rgba(0,0,255,0.5)";
-// ctx.stroke();
-// ctx.closePath();
