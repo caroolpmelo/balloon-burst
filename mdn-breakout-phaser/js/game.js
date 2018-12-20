@@ -4,12 +4,18 @@ const game = new Phaser.Game(480, 320, Phaser.CANVAS, null, {
   update: update // executed on every frame
 });
 
+// main objs
 let ball;
 let paddle;
 
+// bricks
 let bricks;
 let newBrick;
 let brickInfo;
+
+// score
+let scoreText;
+let score = 0;
 
 function preload() {
   // SHOW_ALL scales but keeps the aspect ratio
@@ -62,6 +68,11 @@ function create() {
   paddle.body.immovable = true; // paddle won't fall after hit
 
   initBricks();
+
+  scoreText = game.add.text(5, 5, "Points: 0", {
+    font: "18px Arial",
+    fill: "#0095DD"
+  });
 }
 
 function update() {
@@ -99,4 +110,22 @@ function initBricks() {
 
 function ballHitBrick(ball, brick) {
   brick.kill();
+
+  score += 10;
+  scoreText.setText(`Points: ${score}`);
+
+  // winning
+  let count_alive = 0;
+
+  for (let i = 0; i < bricks.children.length; i++) {
+    if (bricks.children[i].alive == true) {
+      count_alive++;
+    }
+    console.log(count_alive);
+  }
+
+  if (count_alive == 0) {
+    alert("YOU WON, HURRAY <3");
+    location.reload();
+  }
 }
