@@ -7,6 +7,10 @@ const game = new Phaser.Game(480, 320, Phaser.CANVAS, null, {
 let ball;
 let paddle;
 
+let bricks;
+let newBrick;
+let brickInfo;
+
 function preload() {
   // SHOW_ALL scales but keeps the aspect ratio
   game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -20,6 +24,7 @@ function preload() {
 
   game.load.image("ball", "img/ball.png");
   game.load.image("paddle", "img/paddle.png");
+  game.load.image("brick", "img/brick.png");
 }
 
 function create() {
@@ -55,9 +60,43 @@ function create() {
   paddle.anchor.set(0.5, 1); // put paddle at the middle correcting its anchor
   game.physics.enable(paddle, Phaser.Physics.ARCADE);
   paddle.body.immovable = true; // paddle won't fall after hit
+
+  initBricks();
 }
 
 function update() {
   game.physics.arcade.collide(ball, paddle);
+  game.physics.arcade.collide(ball, bricks, ballHitBrick); // 3º parameter is func()
   paddle.x = game.input.x || game.world.width * 0.5;
+}
+
+function initBricks() {
+  brickInfo = {
+    width: 50,
+    height: 20,
+    count: { row: 3, col: 7 },
+    offset: { top: 50, left: 60 },
+    padding: 10
+  };
+
+  bricks = game.add.group();
+
+  for (let col = 0; col < brickInfo.count.col; col++) {
+    for (let row = 0; row < brickInfo.count.row; row++) {
+      let brickX =
+        col * (brickInfo.width + brickInfo.padding) + brickInfo.offset.left;
+      let brickY =
+        row * (brickInfo.height + brickInfo.padding) + brickInfo.offset.top;
+
+      newBrick = game.add.sprite(brickX, brickY, "brick");
+      game.physics.enable(newBrick, Phaser.Physics.ARCADE);
+      newBrick.body.immovable = true;
+      newBrick.anchor.set(0.5);
+      bricks.add(newBrick);
+    }
+  }
+}
+
+function ballHitBrick(ball, brick) {
+  brick.kill();
 }
