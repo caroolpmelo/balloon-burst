@@ -27,6 +27,9 @@ const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 
+// score
+let score = 0;
+
 // bricks array
 let bricks = [];
 for (let columns = 0; columns < brickColumnCount; columns++) {
@@ -64,7 +67,7 @@ function keyUpHandler(e) {
 function collisionDetection() {
   for (let columns = 0; columns < brickColumnCount; columns++) {
     for (let rows = 0; rows < brickRowCount; rows++) {
-      var brickObj = bricks[columns][rows];
+      let brickObj = bricks[columns][rows];
 
       if (brickObj.status == 1) {
         if (
@@ -75,6 +78,12 @@ function collisionDetection() {
         ) {
           dy *= -1; // collision on brick
           brickObj.status = 0; // 'delete' brick
+          score++;
+
+          if (score == brickRowCount * brickColumnCount) {
+            alert("YOU WIN, CHEERS");
+            document.location.reload();
+          }
         }
       }
     }
@@ -105,10 +114,10 @@ function drawBricks() {
         // if 1, draw it
         var brickX = columns * (brickWidth + brickPadding) + brickOffsetLeft;
         var brickY = rows * (brickHeight + brickPadding) + brickOffsetTop;
-
+        
         bricks[columns][rows].x = brickX;
         bricks[columns][rows].y = brickY;
-
+        
         ctx.beginPath();
         ctx.rect(brickX, brickY, brickWidth, brickHeight);
         ctx.fillStyle = "#0095DD";
@@ -119,12 +128,19 @@ function drawBricks() {
   }
 }
 
+function drawScore() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#0095DD";
+  ctx.fillText(`Score: ${score}`, 8, 20); // (text, x, y, maxWidth)
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   drawBricks();
   drawBall();
   drawPaddle();
+  drawScore();
   collisionDetection();
 
   // collision detection
