@@ -36,6 +36,7 @@ function preload() {
   game.load.image("ball", "img/ball.png");
   game.load.image("paddle", "img/paddle.png");
   game.load.image("brick", "img/brick.png");
+  game.load.spritesheet("ball", "img/wobble.png", 20, 20); // ("name", "path", width, height)
 }
 
 function create() {
@@ -48,6 +49,8 @@ function create() {
     game.world.height - 25,
     "ball"
   );
+  // (animationName, frameOrder, framerate):
+  ball.animations.add("wobble", [0, 1, 0, 2, 0, 1, 0, 2, 0], 24);
   ball.anchor.set(0.5);
   /* object physics aren't enabled by default: */
   game.physics.enable(ball, Phaser.Physics.ARCADE);
@@ -95,7 +98,7 @@ function create() {
 }
 
 function update() {
-  game.physics.arcade.collide(ball, paddle);
+  game.physics.arcade.collide(ball, paddle, ballHitPaddle);
   game.physics.arcade.collide(ball, bricks, ballHitBrick); // 3º parameter is func()
   paddle.x = game.input.x || game.world.width * 0.5;
 }
@@ -128,7 +131,16 @@ function initBricks() {
 }
 
 function ballHitBrick(ball, brick) {
-  brick.kill();
+  // tweens (animation: width, opacity etc)
+  let killTween = game.add.tween(brick.scale); // scale bricks properties to zero
+  // to() defines the state of the object at the end of tween
+  // (scale, milliseconds, typeOfEasing)
+  killTween.to({ x: 0, y: 0 }, 200, Phaser.Easing.Linear.None);
+  // onComplete (optional) -> executed when tween finishes
+  killTween.onComplete.addOnce(function() {
+    brick.kill();
+  }, this);
+  killTween.start(); // start tween right away
 
   score += 10;
   scoreText.setText(`Points: ${score}`);
@@ -140,7 +152,6 @@ function ballHitBrick(ball, brick) {
     if (bricks.children[i].alive == true) {
       count_alive++;
     }
-    console.log(count_alive);
   }
 
   if (count_alive == 0) {
@@ -167,4 +178,8 @@ function ballLeaveScreen() {
     alert("GAME OVER");
     location.reload();
   }
+}
+
+function ballHitPaddle(ball, paddle) {
+  ball.animations.play("wobble");
 }
